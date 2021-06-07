@@ -6,6 +6,10 @@ from flask import flash, request
 from contextlib import closing
 import requests
 
+a = open("/home/ubuntu/lb.txt", "r")
+lb_endpoint = f'http://{str(a.read()).strip}'
+a.close()
+
 basic_auth = auth
 
 #Criando as Rotas API para a Tabela Cliente_compra_curso
@@ -25,8 +29,8 @@ def add_comprar_produtos():
 			cursor = conn.cursor(pymysql.cursors.DictCursor)
 
 			# Verificação se o Id do cliente confere com o db_clientes
-			cliente = requests.get(f'http://127.0.0.1:5000/clientes/{_idCliente}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
-			curso = requests.get(f'http://127.0.0.1:5200/produtos/{_idCurso}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
+			cliente = requests.get(f'http://lb_endpoint/clientes/{_idCliente}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
+			curso = requests.get(f'http://lb_endpoint/produtos/{_idCurso}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
 
 			if cliente.status_code == 404:
 				return ('Cliente não encontrado'), 400
@@ -65,10 +69,10 @@ def compras_pesquisar_id(idCliente):
 			return Response('Compra não encontrado', status = 404)
 		
 		curso = [] #lista de json dos vários cursos comprados por um cliente
-		cliente = requests.get(f'http://127.0.0.1:5000/clientes/{idCliente}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
+		cliente = requests.get(f'http://lb_endpoint/clientes/{idCliente}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
 		for i in userRows:
 
-			c = requests.get(f'http://127.0.0.1:5200/produtos/{i["idCurso"]}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
+			c = requests.get(f'http://lb_endpoint/produtos/{i["idCurso"]}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
 			
 			i['data'] = f"{i['data']}"
 			curso.append(c.json())
@@ -120,8 +124,8 @@ def update_compras_produtos(id):
 			sqlQuery = "UPDATE vendas.vendas SET data=%s, idCliente=%s, idCurso=%s, id=%s WHERE id=%s"
 			bindData = (_data, _idCliente, _idCurso, _id, id)
             # Verificação se o Id do cliente confere com o db_clientes
-			cliente = requests.get(f'http://127.0.0.1:5000/clientes/{_idCliente}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
-			curso = requests.get(f'http://127.0.0.1:5200/produtos/{_idCurso}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
+			cliente = requests.get(f'http://lb_endpoint/clientes/{_idCliente}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
+			curso = requests.get(f'http://lb_endpoint/produtos/{_idCurso}', headers = {"Authorization":"Basic YWxlOjI1NjgzMzk0QEd1"})
 
 			if cliente.status_code == 404:
 				return ('Cliente não encontrado'), 400
